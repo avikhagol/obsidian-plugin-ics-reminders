@@ -1,8 +1,10 @@
 # ICS Reminders (Obsidian plugin)
 
 Write reminders in your notes. On every save, the plugin compares them with the previous save and
-sends only what changed (new, edited, deleted) to your system calendar, the one the Linux Mint /
-Cinnamon panel clock, GNOME Calendar and Evolution read (Evolution Data Server).
+sends only what changed (new, edited, deleted) to your system calendar.
+
+> Note: Experimental \
+*tested on the Linux Mint / Cinnamon panel clock, GNOME Calendar and Evolution read (Evolution Data Server).*
 
 ## Install
 1. One-time, in a terminal:
@@ -13,7 +15,7 @@ Cinnamon panel clock, GNOME Calendar and Evolution read (Evolution Data Server).
 3. Settings > ICS Reminders > "Test": it should list your calendars.
 
 ## Reminder syntax
-    - [ ] Call supervisor (@2026-11-05 14:00)
+    - [ ] Call Avi (@2026-11-05 14:00)
     - [ ] Submit report (@2026-11-07)              <- default time (09:00)
     @2026-11-05 14:00 Call supervisor
     - [ ] Weekly meeting (@2026-11-09 10:00 🔁every monday)
