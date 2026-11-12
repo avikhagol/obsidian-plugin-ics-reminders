@@ -1,7 +1,7 @@
 # ICS Reminders (Obsidian plugin)
 
-Write reminders in your notes. On every save, the plugin compares them with the previous save and
-sends only what changed (new, edited, deleted) to your system calendar.
+Write reminders in your notes. When you sync (press Ctrl+S by default), the plugin compares them with the
+previous sync and sends only what changed (new, edited, deleted) to your system calendar.
 
 > Note: Experimental \
 *tested on the Linux Mint / Cinnamon panel clock, GNOME Calendar and Evolution read (Evolution Data Server).*
@@ -13,6 +13,12 @@ sends only what changed (new, edited, deleted) to your system calendar.
    (Settings > Community plugins). Use the .deb or AppImage Obsidian: the Flatpak/Snap versions
    cannot run the system Python.
 3. Settings > ICS Reminders > "Test": it should list your calendars.
+
+## When it syncs
+Settings > ICS Reminders > "Sync trigger":
+- **Only with the hotkey (default):** nothing is sent until you run the command "Sync reminders".
+  It is bound to **Ctrl+S** by default; change it in Settings > Hotkeys. It also syncs at startup.
+- **Automatically after editing:** syncs once you have stopped editing for N seconds (default 30).
 
 ## Reminder syntax
     - [ ] Call Avi (@2026-11-05 14:00)
@@ -26,10 +32,10 @@ Ticking an item (`- [x]`) or deleting the line removes it from the calendar. One
 whose time has already passed are not sent.
 
 ## How the diff works
-Every reminder keeps a stable id. On each save the plugin first matches reminders by identical text,
+Every reminder keeps a stable id. On each sync the plugin first matches reminders by identical text,
 then by same note and line number, so editing a reminder's time or text updates the same calendar
 entry in place (no duplicate). Moving lines around changes nothing. Only new, edited and deleted
-reminders are sent; a save that changes none sends nothing. Command "Sync reminders now (full re-send)"
+reminders are sent; a sync that finds no changes sends nothing. Command "Sync reminders now (full re-send)"
 forces everything again.
 
 ## Notifications (all optional, in settings)

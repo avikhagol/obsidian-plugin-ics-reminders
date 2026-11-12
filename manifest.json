@@ -1,9 +1,9 @@
 {
   "id": "ics-reminders",
   "name": "ICS Reminders",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "minAppVersion": "1.0.0",
-  "description": "Syncs dated reminders from your notes to the system calendar on every save, with optional desktop and in-Obsidian notifications.",
+  "description": "Syncs dated reminders from your notes to the system calendar when you press the sync hotkey (Ctrl+S by default), with optional desktop and in-Obsidian notifications.",
   "author": "Avi",
   "isDesktopOnly": true
 }

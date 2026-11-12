@@ -1,4 +1,4 @@
-const { Plugin, PluginSettingTab, Setting, Notice, Modal, debounce } = require("obsidian");
+const { Plugin, PluginSettingTab, Setting, Notice, Modal, MarkdownView } = require("obsidian");
 const { EditorView } = require("@codemirror/view");
 const { spawn } = require("child_process");
 const fs = require("fs");
@@ -7,6 +7,8 @@ const os = require("os");
 
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone; // your local timezone
 const DEFAULTS = {
+  syncMode: "hotkey",       // "hotkey" = only when you run the sync command (Ctrl+S), "auto" = after you stop editing
+  autoDelaySeconds: 30,     // wait this long after the last edit (auto mode only)
   alarmMinutes: 10,
   durationMinutes: 30,
   defaultTime: "09:00",
@@ -271,6 +273,13 @@ class IcsRemindersPlugin extends Plugin {
     this.addSettingTab(new IcsSettingTab(this.app, this));
 
     this.addCommand({
+      id: "sync",
+      name: "Sync reminders (default hotkey: Ctrl+S)",
+      hotkeys: [{ modifiers: ["Mod"], key: "s" }], // change it in Settings > Hotkeys
+      callback: () => this.syncAll(true),
+    });
+
+    this.addCommand({
       id: "sync-reminders",
       name: "Sync reminders now (full re-send)",
       callback: () => {
@@ -293,17 +302,25 @@ class IcsRemindersPlugin extends Plugin {
       })
     );
 
-    // Every save: look for new / removed / changed reminders and sync only those
-    const later = debounce(() => this.syncAll(false), 2000, true);
-    this.registerEvent(this.app.vault.on("modify", later));
-    this.registerEvent(this.app.vault.on("delete", later));
-    this.registerEvent(this.app.vault.on("rename", later));
+    // Automatic mode only: sync a little while after the last edit (the hotkey command works in both modes)
+    const edited = () => {
+      if (this.settings.syncMode !== "auto") return;
+      window.clearTimeout(this.timer);
+      this.timer = window.setTimeout(() => this.syncAll(false), this.settings.autoDelaySeconds * 1000);
+    };
+    this.registerEvent(this.app.vault.on("modify", edited));
+    this.registerEvent(this.app.vault.on("delete", edited));
+    this.registerEvent(this.app.vault.on("rename", edited));
     this.app.workspace.onLayoutReady(() => {
       this.settings.state.timers = {}; // systemd timers vanish on reboot, so re-create them at startup
       this.syncAll(false);
     });
 
     this.registerInterval(window.setInterval(() => this.checkDue(), 30000));
+  }
+
+  onunload() {
+    window.clearTimeout(this.timer);
   }
 
   pickDate(view, pos, inParens) {
@@ -329,8 +346,9 @@ class IcsRemindersPlugin extends Plugin {
   // All reminders in the vault, keyed by their stable id
   async collect() {
     const list = [];
+    const view = this.app.workspace.getActiveViewOfType(MarkdownView); // its text may not be on disk yet
     for (const file of this.app.vault.getMarkdownFiles()) {
-      const content = await this.app.vault.cachedRead(file);
+      const content = view && view.file === file ? view.editor.getValue() : await this.app.vault.cachedRead(file);
       content.split("\n").forEach((line, i) => {
         const r = parseLine(line, this.settings.defaultTime);
         if (!r) return;
@@ -477,6 +495,16 @@ class IcsSettingTab extends PluginSettingTab {
     const toggle = (name, desc, key) =>
       new Setting(containerEl).setName(name).setDesc(desc)
         .addToggle((t) => t.setValue(s[key]).onChange((v) => save(key, v)));
+
+    new Setting(containerEl).setName("When to sync").setHeading();
+    new Setting(containerEl)
+      .setName("Sync trigger")
+      .setDesc("Hotkey: sync only when you run the command 'Sync reminders' (Ctrl+S by default; change it in Settings > Hotkeys). Automatic: sync a while after you stop editing.")
+      .addDropdown((d) =>
+        d.addOption("hotkey", "Only with the hotkey (Ctrl+S)").addOption("auto", "Automatically after editing")
+          .setValue(s.syncMode).onChange((v) => save("syncMode", v))
+      );
+    text("Delay for automatic sync (seconds)", "Only used in automatic mode.", "autoDelaySeconds", true);
 
     new Setting(containerEl).setName("Calendar app (Mint / GNOME)").setHeading();
     toggle("Sync to calendar on save", "On every save, new / changed / removed reminders are sent straight to your system calendar (the one the Cinnamon panel clock, GNOME Calendar and Evolution show).", "edsSync");
