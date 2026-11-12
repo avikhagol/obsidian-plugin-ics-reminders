@@ -1,0 +1,31 @@
+.ics-picker { width: 380px; max-width: 92vw; padding: 22px; border-radius: 14px; }
+.ics-picker .modal-content { margin: 0; }
+.ics-title { font-size: 1.15em; font-weight: 600; margin-bottom: 14px; }
+
+.ics-chips { display: flex; gap: 6px; margin-bottom: 16px; }
+.ics-chip {
+  border-radius: 999px; padding: 3px 12px; height: auto; cursor: pointer;
+  font-size: var(--font-ui-small); box-shadow: none;
+  background: var(--background-modifier-hover); border: 1px solid transparent;
+}
+.ics-chip:hover { border-color: var(--interactive-accent); color: var(--text-accent); }
+
+.ics-row { display: flex; gap: 12px; margin-bottom: 12px; }
+.ics-field { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.ics-repeat { margin-bottom: 12px; }
+.ics-field label {
+  font-size: var(--font-ui-smaller); color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.ics-field input, .ics-field select { width: 100%; }
+.ics-time { display: flex; align-items: center; gap: 6px; }
+.ics-time select { flex: 1; }
+
+.ics-preview {
+  margin: 4px 0 18px; padding: 10px 12px; border-radius: 8px;
+  background: var(--background-secondary); color: var(--text-muted);
+  font-size: var(--font-ui-small);
+}
+.ics-footer { display: flex; justify-content: flex-end; gap: 8px; }
+.ics-ghost { background: transparent; box-shadow: none; }
+.ics-ghost:hover { background: var(--background-modifier-hover); }
